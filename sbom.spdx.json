@@ -1,0 +1,39 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2026-02-20T12:07:50Z",
+    "creators": ["Tool: generate-sbom.sh", "Organization: vasilievyakov"],
+    "licenseListVersion": "3.21"
+  },
+  "name": "ClaudeSessions-0.1.0",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://github.com/vasilievyakov/ClaudeSessions/sbom-0.1.0",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package",
+      "name": "ClaudeSessions",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "https://github.com/vasilievyakov/ClaudeSessions",
+      "filesAnalyzed": true,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "2026 Yakov Vasiliev",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:vasilievyakov:claudesessions:0.1.0:*:*:*:*:macos:*:*"
+        }
+      ],
+      "comment": "Zero external dependencies. Reads only ~/.claude/ directory. No network access."
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package"
+    }
+  ]
+}

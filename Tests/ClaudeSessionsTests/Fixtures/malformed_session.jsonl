@@ -1,0 +1,5 @@
+{"type":"user","timestamp":"2026-02-01T12:00:00.000Z","cwd":"/Users/testuser/Projects/Broken","message":{"role":"user","content":"This line is valid"}}
+{not valid json at all!!!
+{"type":"assistant","message":{"role":"assistant","model":"claude-sonnet-4-5-20251101","usage":{"input_tokens":100,"output_tokens":50,"cache_read_input_tokens":0,"cache_creation_input_tokens":0},"content":[{"type":"text","text":"Response after bad line"}]}}
+another broken line: "unclosed
+{"type":"system","subtype":"turn_duration","durationMs":3000}

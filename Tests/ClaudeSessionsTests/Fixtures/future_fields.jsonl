@@ -1,0 +1,4 @@
+{"type":"user","timestamp":"2026-01-15T13:00:00.000Z","cwd":"/Users/testuser/Projects/future","unknownTopLevelField":"should be ignored","experimentalData":{"nested":true},"message":{"role":"user","content":"Test forward compatibility"}}
+{"type":"unknown_future_type","data":"should be skipped without crash"}
+{"type":"assistant","message":{"role":"assistant","model":"claude-future-model-99","newUnknownField":"ignored","usage":{"input_tokens":5,"output_tokens":3,"future_token_type":99},"content":[{"type":"text","text":"OK"}]}}
+{"type":"system","subtype":"turn_duration","durationMs":1000}

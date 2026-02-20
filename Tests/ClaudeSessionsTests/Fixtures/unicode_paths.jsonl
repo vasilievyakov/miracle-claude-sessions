@@ -1,0 +1,3 @@
+{"type":"user","timestamp":"2026-01-15T14:00:00.000Z","cwd":"/Users/яков/Проекты/мой-проект","gitBranch":"фича/авторизация","message":{"role":"user","content":"Тест с эмодзи 🚀 и кириллицей"}}
+{"type":"assistant","message":{"role":"assistant","model":"claude-sonnet-4-5-20251101","usage":{"input_tokens":20,"output_tokens":10,"cache_read_input_tokens":0,"cache_creation_input_tokens":0},"content":[{"type":"text","text":"Ответ на русском языке ✓"}]}}
+{"type":"system","subtype":"turn_duration","durationMs":2000}

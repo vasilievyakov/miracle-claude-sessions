@@ -474,7 +474,7 @@ struct ToolBadge: View {
     }
 }
 
-private func toolIcon(_ name: String) -> String {
+func toolIcon(_ name: String) -> String {
     let n = name.lowercased()
     if n == "read" { return "doc.text" }
     if n == "write" { return "square.and.pencil" }
@@ -492,7 +492,7 @@ private func toolIcon(_ name: String) -> String {
     return "wrench"
 }
 
-private func toolColor(_ name: String) -> Color {
+func toolColor(_ name: String) -> Color {
     let n = name.lowercased()
     if n == "read" || n == "write" || n == "edit" || n == "glob" { return .blue }
     if n == "grep" || n == "websearch" || n == "webfetch" { return .purple }
@@ -502,7 +502,7 @@ private func toolColor(_ name: String) -> Color {
     return .gray
 }
 
-private func cleanToolName(_ name: String) -> String {
+func cleanToolName(_ name: String) -> String {
     // Strip "mcp__server__" prefix for display
     if name.hasPrefix("mcp__") {
         let parts = name.split(separator: "__")

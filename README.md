@@ -4,7 +4,7 @@ A native macOS app that turns your Claude Code conversation history into a brows
 
 **Built from scratch in 32 minutes using Claude Code.** [Here's how.](#built-in-32-minutes)
 
-![macOS](https://img.shields.io/badge/macOS-14%2B-blue) ![Swift](https://img.shields.io/badge/Swift-6.0-orange) ![License](https://img.shields.io/badge/license-MIT-green) ![Lines of Code](https://img.shields.io/badge/lines-~700-informational)
+[![CI](https://github.com/vasilievyakov/ClaudeSessions/actions/workflows/ci.yml/badge.svg)](https://github.com/vasilievyakov/ClaudeSessions/actions/workflows/ci.yml) ![macOS](https://img.shields.io/badge/macOS-14%2B-blue) ![Swift](https://img.shields.io/badge/Swift-6.0-orange) ![License](https://img.shields.io/badge/license-MIT-green) ![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen) ![Tests](https://img.shields.io/badge/tests-120%2B-brightgreen)
 
 ![ClaudeSessions — three-column session browser](screenshot.png)
 
@@ -45,6 +45,31 @@ Or run without installing:
 swift build -c release
 make run
 ```
+
+## Security
+
+ClaudeSessions is designed for enterprise environments where verifiability matters.
+
+| Property | Status | How to verify |
+|----------|--------|---------------|
+| Zero network access | Sandbox enforced | `cat ClaudeSessions.entitlements` |
+| Read-only file access | No write APIs | `grep -rn "createFile\|write(to:" Sources/` |
+| Zero dependencies | Verified | `swift package show-dependencies` |
+| No hardcoded credentials | Verified | `bash Scripts/verify-no-credentials.sh` |
+| SBOM available | In every release | `sbom.spdx.json` |
+
+```bash
+# One-command security audit
+bash Scripts/security-audit.sh
+```
+
+## Privacy
+
+- **Reads:** `~/.claude/projects/*.jsonl`, `~/.claude/stats-cache.json`
+- **Writes:** Nothing. **Transmits:** Nothing. **Collects:** Nothing.
+- GDPR compliant. SOC 2 compatible. No telemetry.
+
+[Full privacy documentation](PRIVACY.md) | [Security policy](SECURITY.md)
 
 ## Built in 32 Minutes
 

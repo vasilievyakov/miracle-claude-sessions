@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-scan:
+    name: Security Audit
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify zero network calls (static)
+        run: bash Scripts/verify-no-network.sh
+
+      - name: Verify no hardcoded paths
+        run: bash Scripts/verify-no-hardcoded-paths.sh
+
+      - name: Verify no credentials
+        run: bash Scripts/verify-no-credentials.sh
+
+      - name: Validate entitlements file exists
+        run: test -f ClaudeSessions.entitlements && echo "PASS" || (echo "FAIL" && exit 1)
+
+      - name: Validate entitlements disables network
+        run: grep -A1 "network.client" ClaudeSessions.entitlements | grep -q "false" && echo "PASS" || (echo "FAIL" && exit 1)
+
+  build-and-test:
+    name: Build & Test
+    runs-on: macos-15
+    needs: security-scan
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build release
+        run: swift build -c release
+
+      - name: Run tests
+        run: swift test
+
+      - name: Check source file count
+        run: |
+          COUNT=$(find Sources -name "*.swift" | wc -l | tr -d ' ')
+          echo "Swift source files: $COUNT"
+          if [ "$COUNT" -gt 15 ]; then
+            echo "WARNING: More than 15 Swift files"
+            exit 1
+          fi
+
+  compliance:
+    name: Compliance Check
+    runs-on: macos-15
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate SBOM exists and is valid JSON
+        run: python3 -c "import json; json.load(open('sbom.spdx.json')); print('PASS')"
+
+      - name: Check required documents
+        run: |
+          for doc in PRIVACY.md SECURITY.md LICENSE CONTRIBUTING.md CODE_OF_CONDUCT.md; do
+            test -f "$doc" && echo "PASS: $doc" || (echo "FAIL: $doc missing" && exit 1)
+          done
+
+      - name: SwiftLint
+        run: |
+          brew install swiftlint
+          swiftlint lint --strict

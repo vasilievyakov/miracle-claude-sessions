@@ -1,4 +1,4 @@
-import Foundation
+@_exported import Foundation
 
 struct Session: Identifiable, Hashable {
     let id: String          // session UUID (filename)
@@ -98,33 +98,34 @@ struct Session: Identifiable, Hashable {
 // MARK: - Cost estimation
 
 /// Pricing per million tokens (Claude 4.5 series, Nov 2025)
-private func estimateCost(model: String, input: Int, output: Int,
-                          cacheRead: Int, cacheCreation: Int) -> Double {
-    let m = model.lowercased()
-    let inputPricePer1M: Double
-    let outputPricePer1M: Double
+struct Pricing {
+    let inputPer1M: Double
+    let outputPer1M: Double
 
-    if m.contains("opus") {
-        inputPricePer1M = 5.0
-        outputPricePer1M = 25.0
-    } else if m.contains("sonnet") {
-        inputPricePer1M = 3.0
-        outputPricePer1M = 15.0
-    } else if m.contains("haiku") {
-        inputPricePer1M = 1.0
-        outputPricePer1M = 5.0
-    } else {
-        inputPricePer1M = 3.0
-        outputPricePer1M = 15.0
+    var cacheReadPer1M: Double { inputPer1M * 0.1 }     // 90% discount
+    var cacheCreatePer1M: Double { inputPer1M * 1.25 }   // 25% surcharge
+
+    static let opus = Pricing(inputPer1M: 5.0, outputPer1M: 25.0)
+    static let sonnet = Pricing(inputPer1M: 3.0, outputPer1M: 15.0)
+    static let haiku = Pricing(inputPer1M: 1.0, outputPer1M: 5.0)
+
+    static func forModel(_ model: String) -> Pricing {
+        let m = model.lowercased()
+        if m.contains("opus") { return .opus }
+        if m.contains("sonnet") { return .sonnet }
+        if m.contains("haiku") { return .haiku }
+        return .sonnet // default
     }
+}
 
-    let cacheReadPrice = inputPricePer1M * 0.1   // 90% discount
-    let cacheCreatePrice = inputPricePer1M * 1.25 // 25% surcharge
+func estimateCost(model: String, input: Int, output: Int,
+                  cacheRead: Int, cacheCreation: Int) -> Double {
+    let p = Pricing.forModel(model)
 
-    let cost = (Double(input) * inputPricePer1M
-              + Double(output) * outputPricePer1M
-              + Double(cacheRead) * cacheReadPrice
-              + Double(cacheCreation) * cacheCreatePrice) / 1_000_000.0
+    let cost = (Double(input) * p.inputPer1M
+              + Double(output) * p.outputPer1M
+              + Double(cacheRead) * p.cacheReadPer1M
+              + Double(cacheCreation) * p.cacheCreatePer1M) / 1_000_000.0
 
     return cost
 }
@@ -144,7 +145,7 @@ func shortModelDisplay(_ model: String) -> String {
 
 // MARK: - Project detection
 
-private let containerDirs: Set<String> = [
+let containerDirs: Set<String> = [
     "Projects", "Developer", "Documents", "Desktop",
     "Code", "repos", "src", "work"
 ]

@@ -151,7 +151,7 @@ struct ParserTests {
         #expect(s.assistantMsgCount == 0)
         #expect(s.title == "Hello, what is Swift?")
         #expect(s.inputTokens == 0)
-        #expect(s.model == "")
+        #expect(s.model.isEmpty)
         #expect(s.toolCounts.isEmpty)
         #expect(s.estimatedCostUSD == 0.0)
     }

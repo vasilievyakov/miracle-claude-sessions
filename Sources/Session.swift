@@ -186,13 +186,11 @@ func extractProjectFromPath(_ path: String, requireChildren: Bool = false) -> St
     }
 
     // General case: skip containers, find first meaningful component
-    for (i, component) in components.enumerated() {
-        if !containerDirs.contains(component) {
-            if requireChildren && i >= components.count - 1 {
-                return nil
-            }
-            return component
+    for (i, component) in components.enumerated() where !containerDirs.contains(component) {
+        if requireChildren && i >= components.count - 1 {
+            return nil
         }
+        return component
     }
 
     return nil
@@ -254,15 +252,20 @@ func detectProjectFromPaths(_ paths: [String]) -> String? {
 }
 
 /// Detect project from content of first N user messages.
+// swiftlint:disable force_try
+private let urlRegex = try! NSRegularExpression(
+    pattern: #"(?:github|gitlab)\.com/[^/\s]+/([^/\s?#]+)"#)
+private let pathRegex = try! NSRegularExpression(
+    pattern: #"(?:~/|/Users/[^/\s]+/)[^\s,;\"'\]\)>]+"#)
+// swiftlint:enable force_try
+
 /// Looks for GitHub/GitLab URLs and file paths in text.
 func detectProjectFromContent(_ messages: [String]) -> String? {
     var projectCounts: [String: Int] = [:]
 
     for msg in messages {
         // GitHub/GitLab URLs: github.com/user/repo or gitlab.com/user/repo
-        let urlPattern = try! NSRegularExpression(
-            pattern: #"(?:github|gitlab)\.com/[^/\s]+/([^/\s?#]+)"#)
-        let urlMatches = urlPattern.matches(in: msg, range: NSRange(msg.startIndex..., in: msg))
+        let urlMatches = urlRegex.matches(in: msg, range: NSRange(msg.startIndex..., in: msg))
         for match in urlMatches {
             if let range = Range(match.range(at: 1), in: msg) {
                 var repo = String(msg[range])
@@ -273,9 +276,7 @@ func detectProjectFromContent(_ messages: [String]) -> String? {
         }
 
         // File paths in text: ~/path or /Users/*/path
-        let pathPattern = try! NSRegularExpression(
-            pattern: #"(?:~/|/Users/[^/\s]+/)[^\s,;\"'\]\)>]+"#)
-        let pathMatches = pathPattern.matches(in: msg, range: NSRange(msg.startIndex..., in: msg))
+        let pathMatches = pathRegex.matches(in: msg, range: NSRange(msg.startIndex..., in: msg))
         for match in pathMatches {
             if let range = Range(match.range, in: msg) {
                 let path = String(msg[range])

@@ -365,7 +365,7 @@ struct SessionComputedTests {
     @Test("preview returns empty when no arrow")
     func previewEmpty() {
         let s = makeSession(summary: "Just one message")
-        #expect(s.preview == "")
+        #expect(s.preview.isEmpty)
     }
 }
 

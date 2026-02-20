@@ -44,6 +44,8 @@ cat > "$APP_BUNDLE/Contents/Info.plist" << PLIST
     <string>APPL</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>LSApplicationCategoryType</key>
@@ -54,8 +56,9 @@ cat > "$APP_BUNDLE/Contents/Info.plist" << PLIST
 </plist>
 PLIST
 
-# 5. Copy entitlements (for reference, not enforced without codesign)
+# 5. Copy resources
 cp "$ROOT_DIR/ClaudeSessions.entitlements" "$APP_BUNDLE/Contents/Resources/"
+cp "$ROOT_DIR/Resources/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/"
 
 # 6. Create zip for distribution
 cd "$BUILD_DIR"

@@ -405,7 +405,7 @@ struct StatCard: View {
     let color: Color
     let value: String
     let label: String
-    var tooltip: String? = nil
+    var tooltip: String?
 
     var body: some View {
         HStack(spacing: 8) {

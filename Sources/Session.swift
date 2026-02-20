@@ -251,7 +251,7 @@ func detectProjectFromPaths(_ paths: [String]) -> String? {
     return best.key
 }
 
-/// Detect project from content of first N user messages.
+// Detect project from content of first N user messages.
 // swiftlint:disable force_try
 private let urlRegex = try! NSRegularExpression(
     pattern: #"(?:github|gitlab)\.com/[^/\s]+/([^/\s?#]+)"#)

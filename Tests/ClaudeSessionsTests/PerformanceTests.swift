@@ -43,7 +43,10 @@ struct PerformanceTests {
                 toolCounts: [:],
                 model: "claude-sonnet-4-5-20251101",
                 durationMs: 1000,
-                gitBranch: "main"
+                gitBranch: "main",
+                editedFiles: [],
+                readFiles: [],
+                titleIsHeading: false
             )
         }
         let query = "auth"

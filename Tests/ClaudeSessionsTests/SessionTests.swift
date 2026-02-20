@@ -277,7 +277,10 @@ struct SessionComputedTests {
             toolCounts: toolCounts,
             model: model,
             durationMs: durationMs,
-            gitBranch: ""
+            gitBranch: "",
+            editedFiles: [],
+            readFiles: [],
+            titleIsHeading: false
         )
     }
 

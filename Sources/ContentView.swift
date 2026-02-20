@@ -212,29 +212,46 @@ struct TimelineCell: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(session.title)
+            // Line 1: Smart title (project / branch or project / file or first message)
+            Text(session.smartTitle)
                 .font(.system(size: 13, weight: .semibold))
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            if !session.preview.isEmpty {
-                Text(session.preview)
+            // Line 2: First user message as preview (hide if same as smartTitle)
+            if session.smartTitle != session.title {
+                Text(session.title)
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
 
-            HStack {
-                Text(session.project)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(projectColor(session.project))
+            // Line 3: Activity icon + activity text + model + cost + time
+            HStack(spacing: 4) {
+                Image(systemName: session.activityIcon)
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+
+                Text(session.activityText)
+                    .font(.system(size: 10))
+                    .foregroundStyle(.secondary)
+
+                Text("·")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.quaternary)
+
+                Text(session.shortModelName)
+                    .font(.system(size: 10))
+                    .foregroundStyle(.purple.opacity(0.7))
 
                 if session.estimatedCostUSD >= 0.01 {
                     Text("· \(session.costString)")
                         .font(.system(size: 10))
                         .foregroundStyle(.green)
-                } else {
-                    Text("· \(session.sizeString)")
+                }
+
+                if session.durationMs > 0 {
+                    Text("· \(session.durationString)")
                         .font(.system(size: 10))
                         .foregroundStyle(.quaternary)
                 }
@@ -261,13 +278,24 @@ struct ArticleDetail: View {
             VStack(alignment: .leading, spacing: 0) {
                 // Article header
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(session.title)
+                    Text(session.smartTitle)
                         .font(.title)
                         .fontWeight(.bold)
                         .lineLimit(3)
                         .textSelection(.enabled)
 
+                    // Subheader: activity + project + date + branch
                     HStack(spacing: 6) {
+                        Image(systemName: session.activityIcon)
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                        Text(session.activityText)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+
+                        Text("·")
+                            .foregroundStyle(.quaternary)
+
                         Image(systemName: "circle.fill")
                             .font(.system(size: 8))
                             .foregroundStyle(projectColor(session.project))
@@ -289,6 +317,15 @@ struct ArticleDetail: View {
                                 .font(.system(size: 12))
                                 .foregroundStyle(.secondary)
                         }
+                    }
+
+                    // Original user message as context
+                    if session.smartTitle != session.title {
+                        Text(session.title)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                            .padding(.top, 2)
                     }
                 }
                 .padding(.horizontal, 24)

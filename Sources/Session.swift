@@ -21,6 +21,11 @@ struct Session: Identifiable, Hashable {
     let durationMs: Int             // sum of turn_duration records
     let gitBranch: String
 
+    // Smart summary fields (C+D)
+    let editedFiles: [String]       // unique file paths from Edit/Write tool_use
+    let readFiles: [String]         // unique file paths from Read tool_use
+    let titleIsHeading: Bool        // true if title was extracted from # heading
+
     var timeString: String {
         let f = DateFormatter()
         f.dateFormat = "HH:mm"
@@ -93,7 +98,77 @@ struct Session: Identifiable, Hashable {
     var shortModelName: String {
         shortModelDisplay(model)
     }
+
+    // MARK: - Smart summary (C+D layout)
+
+    /// Smart title: branch → heading → primary edited file → first message
+    var smartTitle: String {
+        // 1. project / branch (if branch is meaningful)
+        let skipBranches: Set<String> = ["main", "master", "develop", "development", "HEAD", ""]
+        if !skipBranches.contains(gitBranch) {
+            let cleanBranch = gitBranch
+                .replacingOccurrences(of: "feat/", with: "")
+                .replacingOccurrences(of: "fix/", with: "")
+                .replacingOccurrences(of: "bug/", with: "")
+                .replacingOccurrences(of: "feature/", with: "")
+                .replacingOccurrences(of: "hotfix/", with: "")
+            return "\(project) / \(cleanBranch)"
+        }
+
+        // 2. project / heading (if first message had a markdown heading)
+        if titleIsHeading {
+            return "\(project) / \(title)"
+        }
+
+        // 3. project / primary edited file
+        if let primaryFile = editedFiles.first {
+            let filename = (primaryFile as NSString).lastPathComponent
+            return "\(project) / \(filename)"
+        }
+
+        // 4. fallback — first user message as title
+        return title
+    }
+
+    /// Activity icon based on dominant tool usage
+    var activityIcon: String {
+        let edits = (toolCounts["Edit"] ?? 0) + (toolCounts["Write"] ?? 0) + (toolCounts["NotebookEdit"] ?? 0)
+        let reads = (toolCounts["Read"] ?? 0) + (toolCounts["Grep"] ?? 0) + (toolCounts["Glob"] ?? 0)
+        let bash = toolCounts["Bash"] ?? 0
+        let web = (toolCounts["WebSearch"] ?? 0) + (toolCounts["WebFetch"] ?? 0)
+        let tasks = (toolCounts["Task"] ?? 0) + (toolCounts["TaskCreate"] ?? 0)
+        let total = toolCounts.values.reduce(0, +)
+
+        if total == 0 { return "bubble.left.fill" }        // chat
+        if web > 0 && web >= total / 3 { return "globe" }  // web research
+        if tasks > 0 && tasks >= total / 3 { return "checklist" } // planning
+        if edits > 0 { return "wrench.fill" }               // coding
+        if bash > reads { return "terminal.fill" }           // devops
+        if reads > 0 { return "magnifyingglass" }            // research
+        return "wrench.fill"
+    }
+
+    /// Short activity description: "12 edits", "8 commands", "explored", "chat"
+    var activityText: String {
+        let edits = (toolCounts["Edit"] ?? 0) + (toolCounts["Write"] ?? 0) + (toolCounts["NotebookEdit"] ?? 0)
+        let bash = toolCounts["Bash"] ?? 0
+        let reads = (toolCounts["Read"] ?? 0) + (toolCounts["Grep"] ?? 0) + (toolCounts["Glob"] ?? 0)
+        let web = (toolCounts["WebSearch"] ?? 0) + (toolCounts["WebFetch"] ?? 0)
+        let total = toolCounts.values.reduce(0, +)
+
+        if total == 0 { return "chat" }
+        if edits > 0 && edits >= bash {
+            let fileCount = editedFiles.count
+            if fileCount > 0 { return "\(fileCount) files edited" }
+            return "\(edits) edits"
+        }
+        if bash > 0 && bash > reads { return "\(bash) commands" }
+        if web > 0 { return "\(web) searches" }
+        if reads > 0 { return "explored" }
+        return "\(total) actions"
+    }
 }
+
 
 // MARK: - Cost estimation
 
@@ -320,6 +395,8 @@ func parseSession(at path: String, sessionDir: String) -> Session? {
     var durationMs = 0
     var gitBranch = ""
     var filePaths: [String] = []
+    var editedFilePaths: Set<String> = []
+    var readFilePaths: Set<String> = []
 
     let iso = ISO8601DateFormatter()
     iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -394,9 +471,16 @@ func parseSession(at path: String, sessionDir: String) -> Session? {
 
                             // Extract file paths from tool inputs
                             if let input = block["input"] as? [String: Any] {
+                                let editTools: Set<String> = ["Edit", "Write", "NotebookEdit"]
+                                let readTools: Set<String> = ["Read"]
                                 for key in ["file_path", "path", "notebook_path"] {
                                     if let fp = input[key] as? String, fp.hasPrefix("/") {
                                         filePaths.append(fp)
+                                        if editTools.contains(toolName) {
+                                            editedFilePaths.insert(fp)
+                                        } else if readTools.contains(toolName) {
+                                            readFilePaths.insert(fp)
+                                        }
                                     }
                                 }
                             }
@@ -455,6 +539,7 @@ func parseSession(at path: String, sessionDir: String) -> Session? {
     .joined(separator: " → ")
 
     // Title: extract from first markdown heading, or truncate first message
+    var titleIsHeading = false
     let firstMsg = userMessages.first.map { msg -> String in
         var cleaned = msg
         while let range = cleaned.range(of: "<system-reminder>.*?</system-reminder>",
@@ -474,6 +559,7 @@ func parseSession(at path: String, sessionDir: String) -> Session? {
                 while heading.hasPrefix("#") { heading = String(heading.dropFirst()) }
                 heading = heading.trimmingCharacters(in: .whitespaces)
                 if !heading.isEmpty {
+                    titleIsHeading = true
                     if heading.count > 80 {
                         return String(heading.prefix(80)) + "..."
                     }
@@ -505,6 +591,9 @@ func parseSession(at path: String, sessionDir: String) -> Session? {
         toolCounts: toolCounts,
         model: model,
         durationMs: durationMs,
-        gitBranch: gitBranch
+        gitBranch: gitBranch,
+        editedFiles: Array(editedFilePaths),
+        readFiles: Array(readFilePaths),
+        titleIsHeading: titleIsHeading
     )
 }

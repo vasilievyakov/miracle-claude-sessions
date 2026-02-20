@@ -167,59 +167,42 @@ Key detail: `usage` and `model` are nested inside `message`, not at the top leve
 - `progress` — streaming progress indicators
 - `system` with `subtype: "stop_hook_summary"` — hook execution logs
 
-## The Story Behind This App
+## Built in 32 Minutes
 
-This app was built in a single Claude Code session. Here's how it happened.
+This entire app — from blank file to working macOS application — was built in a single Claude Code session. Not a prototype. Not a mockup. A real three-column SwiftUI app that parses undocumented file formats, estimates costs, visualizes tool usage, and auto-detects projects.
 
-### Phase 1: UX Research (3.7 minutes)
+Here's the process that made it possible.
 
-Before writing any code, a research agent was dispatched to study session browser UX patterns across:
-- AI conversation browsers (ChatGPT, Cursor, Raycast, GitHub Copilot)
-- Developer log viewers (Console.app, LogUI, Logdy)
-- Note-taking apps (Bear, Obsidian)
-- Open-source Claude Code viewers (claude-code-viewer, cclogviewer, Memora, CursorLens)
+### Research Before Code (3.7 min)
 
-The agent cataloged **40+ features** across 8 categories, with implementation notes and precedents for each. It consumed 70K tokens in 224 seconds.
+Instead of jumping into implementation, a research agent analyzed UX patterns across 10+ existing tools: ChatGPT's conversation browser, Cursor's session history, Console.app, Bear, Obsidian, and four open-source Claude Code viewers. It cataloged **40+ features** with implementation notes and precedents.
 
-### Phase 2: Prioritization
+This took 224 seconds and consumed 70K tokens. The result: a prioritized feature list where 6 high-impact features were selected for a single implementation pass.
 
-Features were ranked into tiers:
-- **Tier 1 (Essential):** 12 features — three-column layout, project grouping, search, tool visualization, cost estimation
-- **Tier 2 (High value):** 10 features — smart collections, quick switcher, faceted filtering
-- **Tier 3 (Differentiators):** 10 features — heatmap, analytics, session diff, file impact graph
+**This is the key insight.** Spending 4 minutes on research saved hours of wrong turns. The agent already knew which UI patterns work, which features matter, and which are noise — before writing a single line of Swift.
 
-From these, **6 features** were cherry-picked for a single implementation pass — a pragmatic mix of Tier 1 essentials and high-value differentiators that could realistically be built at once.
+### Reverse-Engineering an Undocumented Format (1 min)
 
-### Phase 3: JSONL Reverse-Engineering
+Claude Code's JSONL session format isn't documented anywhere. The agent had to discover it empirically:
 
-Claude Code's JSONL format isn't documented anywhere. The implementation agent had to discover the structure empirically:
-
-1. Ran a Python script over real JSONL files to catalog all message types
-2. Discovered that `usage` data is nested inside `message.usage`, not at the top level (initial assumption was wrong)
-3. Found that `turn_duration` records exist only in some sessions, as `type: "system"` with `subtype: "turn_duration"`
+1. Ran a Python script over real JSONL files to catalog all record types
+2. Discovered that `usage` data is nested inside `message.usage`, not at the top level (the obvious assumption was wrong)
+3. Found that timing data lives in `type: "system"` records with `subtype: "turn_duration"`
 4. Learned that `gitBranch` is at the top level but often empty or "HEAD"
 
-### Phase 4: Implementation (4 minutes)
+This kind of exploratory work — reading real files, forming hypotheses, testing them — is exactly where AI agents shine.
 
-All 5 Swift files were written in a single pass:
-- `Session.swift` — model + parser + cost estimation
-- `SessionStore.swift` — scanning + smart collections
-- `ContentView.swift` — full 3-column UI with stat cards, tool badges, quick open
-- `ClaudeSessionsApp.swift` — window config + keyboard shortcuts
-- `ActivityHeatmap.swift` — Swift Charts heatmap
+### Implementation (4 min)
 
-**Zero compilation errors on the first build.**
+All 5 Swift files were written in a single pass. Zero compilation errors on the first build.
 
-### Phase 5: Icon Design
+That's not magic — it's the compounding effect of good research. The agent knew the data format, knew the UI patterns, and knew which SwiftUI components to use. There was nothing left to guess.
 
-The icon is a heatmap grid — a 9x7 matrix of rounded squares in 5 green intensity levels on a dark background, generated programmatically with Python/Pillow and converted to `.icns` via `iconutil`.
+### From Personal Tool to Open Source
 
-### Phase 6: Open-Source Preparation
+The first version worked perfectly — for one person. It had hardcoded usernames, manual project-to-color mappings, and paths that only made sense on one machine.
 
-The initial implementation had hardcoded personal data (username in file paths, project name mappings, per-project color assignments). For the public release:
-- File path scanning was generalized to auto-discover all subdirectories under `~/.claude/projects/`
-- Project detection was rewritten to extract names from directory paths
-- Color assignment was changed from a manual switch statement to a stable hash function
+Making it universal required rethinking project detection entirely. The current version uses a 5-level detection cascade (file paths → working directory → session directory → content analysis → fallback) that works for any user without configuration.
 
 ### Timeline
 
@@ -228,12 +211,13 @@ The initial implementation had hardcoded personal data (username in file paths, 
 | UX Research | 3.7 min | 40+ features cataloged from 10+ reference apps |
 | Prioritization | — | 6 features selected for implementation |
 | JSONL Discovery | 1 min | Format reverse-engineered from real session files |
-| Implementation | 4 min | 5 files, ~700 lines, 0 errors |
-| Testing | 17 min | Manual testing, all features confirmed working |
-| Icon | 2 min | Generated with Pillow, converted with iconutil |
-| Open-source prep | — | Generic project detection, hash-based colors |
+| Implementation | 4 min | 5 files, ~700 lines, 0 compilation errors |
+| Testing & polish | 17 min | Manual testing, all features confirmed working |
+| Open-source prep | — | Universal project detection, hash-based colors |
 
-**Total: ~32 minutes from research results to deployed app with custom icon.**
+**Total: ~32 minutes from research to a deployed, working macOS app.**
+
+The methodology matters more than the speed: research the problem space, understand the data, prioritize ruthlessly, then implement in one focused pass. This works for a session browser. It works for most tools.
 
 ## License
 

@@ -37,12 +37,12 @@ struct ActivityHeatmap: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Активность")
+            Text("Activity")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(.secondary)
 
             if cells.isEmpty {
-                Text("Нет данных")
+                Text("No data")
                     .font(.system(size: 9))
                     .foregroundStyle(.tertiary)
                     .frame(height: 70)
@@ -96,9 +96,9 @@ struct ActivityHeatmap: View {
 
     private func weekdayLabel(_ day: Int) -> String {
         switch day {
-        case 1: return "Пн"
-        case 3: return "Ср"
-        case 5: return "Пт"
+        case 1: return "Mo"
+        case 3: return "We"
+        case 5: return "Fr"
         default: return ""
         }
     }

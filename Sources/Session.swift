@@ -64,13 +64,13 @@ struct Session: Identifiable, Hashable {
 
     var durationString: String {
         let totalSeconds = durationMs / 1000
-        if totalSeconds < 60 { return "\(totalSeconds)с" }
+        if totalSeconds < 60 { return "\(totalSeconds)s" }
         let minutes = totalSeconds / 60
-        if minutes < 60 { return "\(minutes)м" }
+        if minutes < 60 { return "\(minutes)m" }
         let hours = minutes / 60
         let remainMinutes = minutes % 60
-        if remainMinutes == 0 { return "\(hours)ч" }
-        return "\(hours)ч \(remainMinutes)м"
+        if remainMinutes == 0 { return "\(hours)h" }
+        return "\(hours)h \(remainMinutes)m"
     }
 
     var costString: String {
@@ -491,7 +491,7 @@ func parseSession(at path: String, sessionDir: String) -> Session? {
         timestamp: ts,
         project: detectedProject,
         cwd: cwd ?? "~",
-        title: firstMsg.isEmpty ? "Без названия" : firstMsg,
+        title: firstMsg.isEmpty ? "Untitled" : firstMsg,
         summary: summary.isEmpty ? "—" : summary,
         sizeBytes: fileSize,
         userMsgCount: userCount,

@@ -34,9 +34,9 @@ struct ContentView: View {
                 ArticleDetail(session: session)
             } else {
                 ContentUnavailableView {
-                    Label("Нет выбранной сессии", systemImage: "bubble.left.and.text.bubble.right")
+                    Label("No Session Selected", systemImage: "bubble.left.and.text.bubble.right")
                 } description: {
-                    Text("Выбери сессию из списка")
+                    Text("Select a session from the list")
                 }
             }
         }
@@ -58,7 +58,7 @@ struct ContentView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.tertiary)
                         .font(.system(size: 10))
-                    TextField("Поиск...", text: $store.searchText)
+                    TextField("Search...", text: $store.searchText)
                         .textFieldStyle(.plain)
                         .font(.system(size: 12))
                         .frame(width: 140)
@@ -68,15 +68,15 @@ struct ContentView: View {
                 .background(.quaternary.opacity(0.5))
                 .clipShape(RoundedRectangle(cornerRadius: 6))
 
-                Picker("Период", selection: $store.selectedDays) {
-                    Text("1д").tag(1)
-                    Text("7д").tag(7)
-                    Text("30д").tag(30)
-                    Text("Все").tag(0)
+                Picker("Period", selection: $store.selectedDays) {
+                    Text("1d").tag(1)
+                    Text("7d").tag(7)
+                    Text("30d").tag(30)
+                    Text("All").tag(0)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 170)
-                .help("Период: 1 день, неделя, месяц или все")
+                .help("Period: 1 day, week, month, or all")
                 .onChange(of: store.selectedDays) { _, _ in
                     store.scan()
                 }
@@ -86,7 +86,7 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "arrow.clockwise")
                 }
-                .help("Обновить (⌘R)")
+                .help("Refresh (⌘R)")
             }
         }
     }
@@ -102,9 +102,9 @@ struct FeedSidebar: View {
         VStack(spacing: 0) {
             List(selection: $selection) {
                 // Smart collections
-                Section("Фильтры") {
+                Section("Filters") {
                     Label {
-                        Text("Все сессии")
+                        Text("All Sessions")
                     } icon: {
                         Image(systemName: "tray.full.fill")
                             .foregroundStyle(Color.accentColor)
@@ -113,7 +113,7 @@ struct FeedSidebar: View {
                     .tag(SidebarItem.all)
 
                     Label {
-                        Text("Сегодня")
+                        Text("Today")
                     } icon: {
                         Image(systemName: "sun.max.fill")
                             .foregroundStyle(.orange)
@@ -122,7 +122,7 @@ struct FeedSidebar: View {
                     .tag(SidebarItem.today)
 
                     Label {
-                        Text("Эта неделя")
+                        Text("This Week")
                     } icon: {
                         Image(systemName: "calendar")
                             .foregroundStyle(.purple)
@@ -131,7 +131,7 @@ struct FeedSidebar: View {
                     .tag(SidebarItem.thisWeek)
 
                     Label {
-                        Text("Большие >100K")
+                        Text("Large >100K")
                     } icon: {
                         Image(systemName: "scalemass.fill")
                             .foregroundStyle(.red)
@@ -141,7 +141,7 @@ struct FeedSidebar: View {
                 }
 
                 // Project feeds
-                Section("Проекты") {
+                Section("Projects") {
                     ForEach(store.projects, id: \.self) { project in
                         Label {
                             Text(project)
@@ -192,7 +192,7 @@ struct TimelineList: View {
         .frame(minWidth: 280, idealWidth: 340)
         .overlay(alignment: .bottom) {
             HStack {
-                Text("\(store.filteredSessions.count) сессий")
+                Text("\(store.filteredSessions.count) sessions")
                 Spacer()
                 Text(humanSize(store.totalSize))
             }
@@ -300,14 +300,14 @@ struct ArticleDetail: View {
                 // Stat Cards — Row 1: cost, tokens, duration, model
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 10) {
                     StatCard(icon: "dollarsign.circle.fill", color: .green,
-                             value: session.costString, label: "Стоимость")
+                             value: session.costString, label: "Cost")
                     StatCard(icon: "number.circle.fill", color: .blue,
-                             value: session.tokenString, label: "Токены",
+                             value: session.tokenString, label: "Tokens",
                              tooltip: "In: \(session.inputTokens), Out: \(session.outputTokens), Cache Read: \(session.cacheReadTokens), Cache Write: \(session.cacheCreationTokens)")
                     StatCard(icon: "clock.fill", color: .orange,
-                             value: session.durationString, label: "Время")
+                             value: session.durationString, label: "Duration")
                     StatCard(icon: "cpu.fill", color: .purple,
-                             value: session.shortModelName, label: "Модель")
+                             value: session.shortModelName, label: "Model")
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 12)
@@ -315,13 +315,13 @@ struct ArticleDetail: View {
                 // Stat Cards — Row 2: messages, size, folder
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 10) {
                     StatCard(icon: "person.fill", color: .cyan,
-                             value: "\(session.userMsgCount)", label: "Мои")
+                             value: "\(session.userMsgCount)", label: "Mine")
                     StatCard(icon: "sparkle", color: .indigo,
                              value: "\(session.assistantMsgCount)", label: "Claude")
                     StatCard(icon: "doc.fill", color: .gray,
-                             value: session.sizeString, label: "Размер")
+                             value: session.sizeString, label: "Size")
                     StatCard(icon: "folder.fill", color: .brown,
-                             value: shortPath(session.cwd), label: "Папка")
+                             value: shortPath(session.cwd), label: "Folder")
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 4)
@@ -372,7 +372,7 @@ struct ArticleDetail: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
-                    .help("Скопировать команду")
+                    .help("Copy command")
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
@@ -388,7 +388,7 @@ struct ArticleDetail: View {
                     copied = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 2) { copied = false }
                 } label: {
-                    Label(copied ? "Скопировано" : "Resume",
+                    Label(copied ? "Copied" : "Resume",
                           systemImage: copied ? "checkmark" : "play.fill")
                 }
                 .buttonStyle(.borderedProminent)
@@ -436,7 +436,7 @@ struct ToolGrid: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Инструменты")
+            Text("Tools")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.secondary)
 
@@ -540,7 +540,7 @@ struct QuickOpenSheet: View {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
-                TextField("Поиск сессий...", text: $query)
+                TextField("Search sessions...", text: $query)
                     .textFieldStyle(.plain)
                     .font(.system(size: 16))
                     .onSubmit { selectCurrent() }
@@ -561,7 +561,7 @@ struct QuickOpenSheet: View {
 
             // Results list
             if results.isEmpty {
-                ContentUnavailableView("Ничего не найдено", systemImage: "magnifyingglass")
+                ContentUnavailableView("No Results", systemImage: "magnifyingglass")
                     .frame(maxHeight: .infinity)
             } else {
                 ScrollViewReader { proxy in
@@ -678,18 +678,18 @@ func formatDateHeader(_ dateStr: String) -> String {
     guard let date = df.date(from: dateStr) else { return dateStr }
 
     let cal = Calendar.current
-    if cal.isDateInToday(date) { return "Сегодня" }
-    if cal.isDateInYesterday(date) { return "Вчера" }
+    if cal.isDateInToday(date) { return "Today" }
+    if cal.isDateInYesterday(date) { return "Yesterday" }
 
-    df.dateFormat = "EEEE, d MMMM"
-    df.locale = Locale(identifier: "ru_RU")
+    df.dateFormat = "EEEE, MMMM d"
+    df.locale = Locale(identifier: "en_US")
     return df.string(from: date)
 }
 
 func formatDetailDate(_ date: Date) -> String {
     let df = DateFormatter()
-    df.dateFormat = "d MMMM yyyy"
-    df.locale = Locale(identifier: "ru_RU")
+    df.dateFormat = "MMMM d, yyyy"
+    df.locale = Locale(identifier: "en_US")
     return df.string(from: date)
 }
 

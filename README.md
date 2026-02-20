@@ -31,7 +31,7 @@ This app fills that gap. Think [NetNewsWire](https://netnewswire.com/), but for 
 
 ## Install
 
-Requires macOS 14 (Sonoma) or later.
+Requires macOS 14 (Sonoma) or later. Apple Silicon only.
 
 **Homebrew (recommended):**
 

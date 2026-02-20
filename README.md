@@ -4,8 +4,7 @@ A native macOS app for browsing your [Claude Code](https://docs.anthropic.com/en
 
 ![macOS](https://img.shields.io/badge/macOS-14%2B-blue) ![Swift](https://img.shields.io/badge/Swift-6.0-orange) ![License](https://img.shields.io/badge/license-MIT-green)
 
-<!-- TODO: Add screenshot -->
-<!-- ![Screenshot](screenshot.png) -->
+![ClaudeSessions — three-column session browser](screenshot.png)
 
 ## What Is This?
 
@@ -53,14 +52,21 @@ GitHub-style contribution grid in the sidebar, showing your Claude Code activity
 Spotlight-like fuzzy search across all sessions. Type a few characters, arrow through results, hit Enter to jump.
 
 ### Smart Project Detection
-Projects are detected automatically from your working directory path. No configuration needed — if you run Claude from `~/Projects/my-app`, the project is "my-app".
+Projects are detected automatically — no configuration needed. Detection cascade:
+1. **File paths** from tool calls (most reliable — what files did Claude actually touch?)
+2. **Working directory** (if not home)
+3. **Session directory** name (encoded in `~/.claude/projects/`)
+4. **Content analysis** — GitHub URLs and file paths mentioned in your first messages
+5. **Fallback** — "Chat" for pure conversations, "Home" for everything else
+
+Special handling for `.claude/` subfolders: sessions working on skills, rules, or memory get their own project names.
 
 ### Cost Estimation
-Per-session cost estimates based on current Anthropic pricing:
+Per-session cost estimates based on [Anthropic pricing](https://www.anthropic.com/pricing) (Claude 4.5 series):
 
 | Model | Input | Output | Cache Read | Cache Write |
 |-------|-------|--------|------------|-------------|
-| Opus | $15/M | $75/M | $1.50/M | $18.75/M |
+| Opus | $5/M | $25/M | $0.50/M | $6.25/M |
 | Sonnet | $3/M | $15/M | $0.30/M | $3.75/M |
 | Haiku | $1/M | $5/M | $0.10/M | $1.25/M |
 
@@ -70,8 +76,8 @@ Requirements: macOS 14+ and Swift 6.0 (comes with Xcode 16).
 
 ```bash
 # Clone
-git clone https://github.com/vasilievyakov/claude-sessions.git
-cd claude-sessions
+git clone https://github.com/vasilievyakov/ClaudeSessions.git
+cd ClaudeSessions
 
 # Build
 swift build -c release
@@ -102,11 +108,7 @@ Sources/
 3. Sessions are grouped by date and filtered by the active collection/search
 4. Views observe `SessionStore` via `@EnvironmentObject`
 
-**Project detection** works by analyzing the working directory path:
-- Strip home directory prefix
-- Skip common container directories (Projects, Developer, Documents, Desktop, Code, repos, src, work)
-- First non-container component = project name
-- Example: `/Users/you/Projects/my-app/src` → `my-app`
+**Project detection** uses a 5-level cascade (file paths → cwd → session dir → content → fallback), with special handling for `.claude/` subfolders and a shared `extractProjectFromPath()` that skips common container directories (Projects, Developer, Documents, etc.).
 
 ## JSONL Format
 

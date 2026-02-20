@@ -97,7 +97,7 @@ struct Session: Identifiable, Hashable {
 
 // MARK: - Cost estimation
 
-/// Pricing per million tokens (as of Feb 2026)
+/// Pricing per million tokens (Claude 4.5 series, Nov 2025)
 private func estimateCost(model: String, input: Int, output: Int,
                           cacheRead: Int, cacheCreation: Int) -> Double {
     let m = model.lowercased()
@@ -105,8 +105,8 @@ private func estimateCost(model: String, input: Int, output: Int,
     let outputPricePer1M: Double
 
     if m.contains("opus") {
-        inputPricePer1M = 15.0
-        outputPricePer1M = 75.0
+        inputPricePer1M = 5.0
+        outputPricePer1M = 25.0
     } else if m.contains("sonnet") {
         inputPricePer1M = 3.0
         outputPricePer1M = 15.0

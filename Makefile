@@ -1,4 +1,4 @@
-.PHONY: build install run clean test lint
+.PHONY: build install run clean test lint app
 
 TESTING_FLAGS = -Xswiftc -F/Library/Developer/CommandLineTools/Library/Developer/Frameworks \
 	-Xlinker -rpath -Xlinker /Library/Developer/CommandLineTools/Library/Developer/Frameworks
@@ -18,6 +18,9 @@ test:
 
 lint:
 	swiftlint lint --strict
+
+app:
+	bash Scripts/build-app.sh $(VERSION)
 
 clean:
 	swift package clean

@@ -33,17 +33,18 @@ This app fills that gap. Think [NetNewsWire](https://netnewswire.com/), but for 
 
 Requires macOS 14 (Sonoma) or later.
 
+**Homebrew (recommended):**
+
+```bash
+brew install --cask vasilievyakov/tap/claude-sessions
+```
+
+**From source:**
+
 ```bash
 git clone https://github.com/vasilievyakov/ClaudeSessions.git
 cd ClaudeSessions
 make install   # builds and copies to ~/Applications/
-```
-
-Or run without installing:
-
-```bash
-swift build -c release
-make run
 ```
 
 ## Security

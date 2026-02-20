@@ -169,7 +169,6 @@ struct Session: Identifiable, Hashable {
     }
 }
 
-
 // MARK: - Cost estimation
 
 /// Pricing per million tokens (Claude 4.5 series, Nov 2025)
